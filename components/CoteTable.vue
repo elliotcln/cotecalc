@@ -7,7 +7,7 @@
         <template v-if="cotesVisible">
             <section class="grid grid-cols-2 gap-4 my-4">
                 <div>
-                    <h3 class="font-semibold mb-2">Cotes Match #1</h3>
+                    <h3 class="font-semibold mb-2 text-center">Cotes Match #1</h3>
                     <div
                         v-for="(c1, index) in state.match1.cotes"
                         :key="index"
@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <div>
-                    <h3 class="font-semibold mb-2">Cotes Match #2</h3>
+                    <h3 class="font-semibold mb-2 text-center">Cotes Match #2</h3>
                     <div
                         v-for="(c2, index) in state.match2.cotes"
                         :key="index"
@@ -61,7 +61,10 @@
             @click.prevent="filterCotes"
             class="mt-4 block w-full p-4 rounded text-center bg-green-500 text-white font-semibold"
         >Filtrer les cotes</button>
-        <template v-if="filteredCotes.length > 0">
+        <template v-if="Array.isArray(filteredCotes) && filteredCotes.length === 0">
+            <p class="text-gray-400 py-4 text-center">Aucun résultats pour ce Z et ces cotes ...</p>
+        </template>
+        <template v-if="Array.isArray(filteredCotes) && filteredCotes.length > 0">
             <section class="my-4">
                 <div class="flex text-gray-500 uppercase text-xs font-bold tracking-wide">
                     <span class="w-full text-center">Match #1</span>
@@ -85,7 +88,7 @@ export default {
     data() {
         return {
             cotesVisible: false,
-            filteredCotes: [],
+            filteredCotes: null,
             scores: [
                 '1-0', '2-0', '2-1', '3-0', '3-1', '3-2', '4-0', '4-1', '4-2', '4-3',
                 '0-0', '1-1', '2-2', '3-3', '4-4',
