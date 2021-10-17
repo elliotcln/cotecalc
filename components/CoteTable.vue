@@ -1,62 +1,80 @@
 <template>
-    <div class="flex">
-        <div class="w-14 flex-shrink-0 border-r overflow-hidden flex items-center pr-2">
-            <!-- <h2
-                class="font-semibold transform -rotate-90 origin-bottom-left translate-x-1/4 translate-y-full flex-shrink-0"
-            >{{ state.match2.firstTeam }} / {{ state.match2.secondTeam }}</h2>-->
-            <h2
-                class="font-semibold transform -rotate-90 origin-bottom-left translate-x-1/4 translate-y-full flex-shrink-0"
-            >Match #2</h2>
-        </div>
-        <div class="flex-grow w-full overflow-x-auto">
-            <!-- <h2
-                class="font-semibold text-center pb-2 border-b"
-            >{{ state.match1.firstTeam }} / {{ state.match1.secondTeam }}</h2>-->
-            <h2 class="font-semibold text-center pb-2 border-b">Match #1</h2>
-            <div class>
-                <table class="w-full text-xs">
-                    <tbody>
-                        <tr>
-                            <th class="border-b"></th>
-                            <th
-                                v-for="(c1, index) in state.match1.cotes"
-                                :key="index"
-                                class="p-1 border-b border-r border-l"
-                            >
-                                <input
-                                    type="number"
-                                    class="w-12 font-bold"
-                                    step="0.01"
-                                    min="0"
-                                    max="100"
-                                    :value="c1"
-                                    @change="editCote('match1', index, $event.target.value)"
-                                />
-                            </th>
-                        </tr>
-                        <tr v-for="(c2, index) in state.match2.cotes" :key="index">
-                            <th class="text-right border-r border-b p-1">
-                                <input
-                                    type="number"
-                                    class="w-12 font-bold"
-                                    step="0.01"
-                                    min="0"
-                                    max="100"
-                                    :value="c2"
-                                    @change="editCote('match2', index, $event.target.value)"
-                                />
-                            </th>
-                            <td
-                                class="text-center border"
-                                :class="(Math.round((c1 * c2) * 100) / 100) == z ? 'bg-green-500 text-white' : ''"
-                                v-for="(c1, i) in state.match1.cotes"
-                                :key="i"
-                            >{{ (Math.round((c1 * c2) * 100) / 100) }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class>
+        <button
+            @click.prevent="cotesVisible = !cotesVisible"
+            class="block w-full p-4 rounded text-center bg-blue-500 text-white font-semibold"
+        >{{ cotesVisible ? 'Cacher' : 'Afficher' }} les cotes</button>
+        <template v-if="cotesVisible">
+            <section class="grid grid-cols-2 gap-4 my-4">
+                <div>
+                    <h3 class="font-semibold mb-2">Cotes Match #1</h3>
+                    <div
+                        v-for="(c1, index) in state.match1.cotes"
+                        :key="index"
+                        class="flex space-x-2 items-center"
+                        :class="index === state.match1.cotes.length - 1 ? 'mb-0' : 'mb-1'"
+                    >
+                        <label
+                            class="flex-shrink-0 font-bold"
+                            :for="'match1-cote-' + index"
+                        >{{ scores[index] }}</label>
+                        <input
+                            :id="'match1-cote-' + index"
+                            type="number"
+                            class="w-full border rounded p-2"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            :value="c1"
+                            @change="editCote('match1', index, $event.target.value)"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">Cotes Match #2</h3>
+                    <div
+                        v-for="(c2, index) in state.match2.cotes"
+                        :key="index"
+                        class="flex space-x-2 items-center"
+                        :class="index === state.match2.cotes.length - 1 ? 'mb-0' : 'mb-1'"
+                    >
+                        <label
+                            class="flex-shrink-0 font-bold"
+                            :for="'match1-cote-' + index"
+                        >{{ scores[index] }}</label>
+                        <input
+                            :id="'match1-cote-' + index"
+                            type="number"
+                            class="w-full border rounded p-2"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            :value="c2"
+                            @change="editCote('match2', index, $event.target.value)"
+                        />
+                    </div>
+                </div>
+            </section>
+        </template>
+        <!-- filtrer les meilleures cotes -->
+        <button
+            @click.prevent="filterCotes"
+            class="mt-4 block w-full p-4 rounded text-center bg-green-500 text-white font-semibold"
+        >Filtrer les cotes</button>
+        <template v-if="filteredCotes.length > 0">
+            <section class="my-4">
+                <div class="flex text-gray-500 uppercase text-xs font-bold tracking-wide">
+                    <span class="w-full text-center">Match #1</span>
+                    <span class="w-full text-center">Cote</span>
+                    <span class="w-full text-center">Match #2</span>
+                </div>
+                <div class="flex mt-2" v-for="(fc, index) in filteredCotes" :key="index">
+                    <span class="w-full p-1 text-center">{{ scores[fc.index1] }}</span>
+                    <span class="w-full p-1 font-bold text-center text-green-500">{{ fc.cote }}</span>
+                    <span class="w-full p-1 text-center">{{ scores[fc.index2] }}</span>
+                </div>
+            </section>
+        </template>
     </div>
 </template>
 
@@ -64,6 +82,18 @@
 
 export default {
     props: ['state', 'z'],
+    data() {
+        return {
+            cotesVisible: false,
+            filteredCotes: [],
+            scores: [
+                '1-0', '2-0', '2-1', '3-0', '3-1', '3-2', '4-0', '4-1', '4-2', '4-3',
+                '0-0', '1-1', '2-2', '3-3', '4-4',
+                '0-1', '0-2', '1-2', '0-3', '1-3', '2-3', '0-4', '1-4', '2-4', '3-4',
+                'Autres'
+            ]
+        }
+    },
     methods: {
         editCote(matchIndex, index, newValue) {
             const payload = {
@@ -73,6 +103,28 @@ export default {
             }
             console.log('payload', payload)
             this.$store.commit('editCote', payload)
+        },
+
+        filterCotes() {
+            this.filteredCotes = []
+            let c1 = this.state.match1.cotes
+            let c2 = this.state.match2.cotes
+
+            c1.forEach((c, index) => {
+                for (let i = 0; i < 26; i++) {
+                    const result = Math.round((c * c2[i]) * 100) / 100
+                    if (result == this.state.z) {
+                        const r = {
+                            index1: index,
+                            index2: i,
+                            cote: result
+                        }
+
+                        this.filteredCotes.push(r)
+                    }
+                }
+            })
+            console.log('this.filteredCotes', this.filteredCotes)
         }
     }
 }

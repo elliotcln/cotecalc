@@ -1,8 +1,8 @@
 import Vue from 'vue'
 
 export const state = () => ({
-    z: 0,
     games: {
+        z: 0,
         match1: {
             cotes: Array(26).fill(1)
         },
@@ -32,10 +32,9 @@ export const mutations = {
         games[payload.matchIndex].cotes[payload.index] = parseFloat(payload.newValue)
 
         localStorage['games'] = JSON.stringify(games)
-        console.log("localStorage['games']", localStorage['games'])
         Vue.set(state.games[payload.matchIndex].cotes, payload.index, parseFloat(payload.newValue))
     },
     updateZ(state, newValue) {
-        state.z = newValue
+        state.games.z = newValue
     }
 }

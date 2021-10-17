@@ -1,6 +1,6 @@
 <template>
   <div class="xl:container mx-auto p-5 xl:py-12">
-    <header class="pb-5 mb-5 border-b flex item-center justify-between">
+    <header class="pb-5 mb-5 border-b flex flex-col lg:flex-row item-center justify-between">
       <div class>
         <h1 class="flex items-center space-x-2 text-3xl font-semibold">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-6 w-6">
@@ -13,10 +13,10 @@
         </h1>
         <p class="block text-gray-600">Les meilleurs paris en fonction des cotes</p>
       </div>
-      <div>
-        <label class="block font-semibold text-xs uppercase tracking-wide" for="stateZ">Z Number</label>
+      <div class="mt-4 lg:mt-0">
+        <label class="block font-semibold text-xs uppercase tracking-wide mb-1" for="stateZ">Z Number</label>
         <input
-          class="border rounded p-2"
+          class="border rounded p-2 w-full lg:w-auto"
           type="number"
           step="0.01"
           id="stateZ"
@@ -38,7 +38,7 @@ export default {
   computed: {
     z: {
       get() {
-        return this.$store.state.z
+        return this.$store.state.games.z
       },
       set(value) {
         this.$store.commit('updateZ', value)
